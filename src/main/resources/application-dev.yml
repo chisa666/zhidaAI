@@ -1,0 +1,71 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  ai:
+    openai:
+      base-url: ${OPENAI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        options:
+          model: ${OPENAI_MODEL:deepseek-v3}
+      embedding:
+        model: ${OPENAI_EMBEDDING_MODEL:text-embedding-v4}
+        dimensions: ${OPENAI_EMBEDDING_DIMENSIONS:1536}
+    vectorstore:
+      type: ${VECTOR_STORE_TYPE:pgvector}
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1536
+        max-document-batch-size: 10000
+        table-name: t_vector_store
+      redis:
+        initialize-schema: true
+        index-name: zhida-ai-index
+        prefix: embedding
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5432/zhida}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    hikari:
+      pool-name: ZhidaAi-HikariCP
+      auto-commit: true
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-test-query: SELECT 1
+      validation-timeout: 5000
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:always}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:}
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+    cassandra:
+      contact-points: ${CASSANDRA_CONTACT_POINTS:127.0.0.1}
+      port: ${CASSANDRA_PORT:9042}
+      local-datacenter: ${CASSANDRA_LOCAL_DATACENTER:datacenter1}
+      keyspace-name: ${CASSANDRA_KEYSPACE:ai_robot}
+  cassandra:
+    contact-points: ${CASSANDRA_CONTACT_POINTS:127.0.0.1}
+    port: ${CASSANDRA_PORT:9042}
+    local-datacenter: ${CASSANDRA_LOCAL_DATACENTER:datacenter1}
+    keyspace-name: ${CASSANDRA_KEYSPACE:ai_robot}
+
+zhida:
+  openai:
+    base-url: ${OPENAI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
+    api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:deepseek-v3}
+  searxng:
+    base-url: ${SEARXNG_BASE_URL:http://127.0.0.1:8888}

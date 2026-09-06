@@ -1,0 +1,36 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: zhida-ai
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:ollama}
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+zhida:
+  author: chisa
+  display-name: 智答ai
+  storage-path: ${ZHIDA_STORAGE_PATH:./data}
+  max-upload-size: ${ZHIDA_MAX_UPLOAD_SIZE:524288000}
+
+logging:
+  config: classpath:log4j2.xml
+  level:
+    chisa.zhida: INFO
+    org.springframework.ai: INFO
+    org.springframework.ai.chat.client.advisor: DEBUG
+
+okhttp:
+  connect-timeout: 5000
+  read-timeout: 30000
+  write-timeout: 15000
+  max-idle-connections: 200
+  keep-alive-duration: 5
+
+searxng:
+  url: ${SEARXNG_URL:http://127.0.0.1:8888/search}
+  count: ${SEARXNG_COUNT:50}

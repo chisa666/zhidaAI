@@ -1,0 +1,87 @@
+spring:
+  config:
+    activate:
+      on-profile: ollama
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.deepseek.autoconfigure.DeepSeekChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration
+  ai:
+    vectorstore:
+      type: ${VECTOR_STORE_TYPE:pgvector}
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 768
+        max-document-batch-size: 1000
+        table-name: t_vector_store_ollama
+        initialize-schema: true
+    chat:
+      memory:
+        repository:
+          cassandra:
+            keyspace: ${CASSANDRA_KEYSPACE:ai_robot}
+            table: ${CASSANDRA_CHAT_MEMORY_TABLE:t_ai_chat_memory}
+            time-to-live: ${CASSANDRA_CHAT_MEMORY_TTL:1095d}
+            initialize-schema: ${CASSANDRA_CHAT_MEMORY_INITIALIZE_SCHEMA:true}
+    mcp:
+      client:
+        enabled: ${ZHIDA_MCP_CLIENT_ENABLED:false}
+        request-timeout: 100s
+        stdio:
+          servers-configuration: classpath:/mcp-servers-config.json
+        toolcallback:
+          enabled: true
+      server:
+        name: zhida-mcp-server
+        version: 1.0.0
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434}
+      chat:
+        model: ${OLLAMA_MODEL:qwen3:1.7b}
+        options:
+          model: ${OLLAMA_MODEL:qwen3:1.7b}
+          temperature: ${OLLAMA_TEMPERATURE:0.7}
+          num-ctx: ${OLLAMA_NUM_CTX:2048}
+          num-gpu: ${OLLAMA_NUM_GPU:0}
+      embedding:
+        model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5432/zhida}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:always}
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:}
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+    cassandra:
+      contact-points: ${CASSANDRA_CONTACT_POINTS:127.0.0.1}
+      port: ${CASSANDRA_PORT:9042}
+      local-datacenter: ${CASSANDRA_LOCAL_DATACENTER:datacenter1}
+      keyspace-name: ${CASSANDRA_KEYSPACE:ai_robot}
+  cassandra:
+    contact-points: ${CASSANDRA_CONTACT_POINTS:127.0.0.1}
+    port: ${CASSANDRA_PORT:9042}
+    local-datacenter: ${CASSANDRA_LOCAL_DATACENTER:datacenter1}
+    keyspace-name: ${CASSANDRA_KEYSPACE:ai_robot}
+zhida:
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434}
+    model: ${OLLAMA_MODEL:qwen3:1.7b}
+  searxng:
+    base-url: ${SEARXNG_BASE_URL:http://127.0.0.1:8888}
