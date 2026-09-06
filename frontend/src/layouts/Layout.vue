@@ -1,0 +1,2 @@
+<template><div class="flex h-screen overflow-hidden bg-[#f7f9fc]"><Sidebar @new-chat="$emit('new-chat')" @home="$emit('home')" @customer-service="$emit('customer-service')" @lab="$emit('lab')" @select-chat="id => $emit('select-chat', id)" /><main class="min-w-0 flex-1 overflow-hidden"><slot /></main></div></template>
+<script setup>import Sidebar from '@/components/Sidebar.vue'; defineEmits(['new-chat','home','customer-service','lab','select-chat'])</script>

@@ -1,0 +1,1 @@
+<template><span class="inline-flex items-center gap-1.5 text-xs text-slate-400"><i class="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300"></i><i class="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300 [animation-delay:120ms]"></i><i class="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300 [animation-delay:240ms]"></i></span></template>
