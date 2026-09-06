@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: zhida-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB: zhida
+    ports: ["5432:5432"]
+    volumes: ["./docker/postgres:/var/lib/postgresql/data"]
+  redis:
+    image: redis/redis-stack:7.2.0-v18
+    container_name: zhida-redis
+    restart: unless-stopped
+    ports: ["6379:6379", "8001:8001"]
+    volumes: ["./docker/redis:/data"]
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: zhida-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD must be set in .env}
+    ports: ["5672:5672", "15672:15672"]
+  cassandra:
+    image: cassandra:5.0.4
+    container_name: zhida-cassandra5
+    restart: unless-stopped
+    ports: ["9042:9042"]
+    volumes: ["./docker/cassandra/data:/var/lib/cassandra"]
+  searxng:
+    image: searxng/searxng:2026.7.2-67973783d
+    container_name: zhida-searxng
+    restart: unless-stopped
+    ports: ["8888:8080"]
+    volumes: ["./docker/searxng:/etc/searxng", "./docker/searxng-cache:/var/cache/searxng"]

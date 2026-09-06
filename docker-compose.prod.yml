@@ -1,0 +1,68 @@
+services:
+  backend:
+    build: .
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ollama
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:1.7b}
+      OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+      DB_URL: jdbc:postgresql://postgres:5432/zhida
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-}
+      CASSANDRA_CONTACT_POINTS: cassandra
+      CASSANDRA_LOCAL_DATACENTER: datacenter1
+      SEARXNG_URL: http://searxng:8080/search
+      ZHIDA_STORAGE_PATH: /app/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - postgres
+      - cassandra
+      - searxng
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - ${WEB_PORT:-80}:80
+    depends_on:
+      - backend
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-}
+      POSTGRES_DB: zhida
+    volumes:
+      - ./docker/postgres:/var/lib/postgresql/data
+
+  cassandra:
+    image: cassandra:5.0.4
+    restart: unless-stopped
+    environment:
+      MAX_HEAP_SIZE: 768M
+      HEAP_NEWSIZE: 200M
+    volumes:
+      - ./docker/cassandra/data:/var/lib/cassandra
+
+  redis:
+    image: redis/redis-stack:7.2.0-v18
+    restart: unless-stopped
+    volumes:
+      - ./docker/redis:/data
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    restart: unless-stopped
+
+  searxng:
+    image: searxng/searxng:2026.7.2-67973783d
+    restart: unless-stopped
+    volumes:
+      - ./docker/searxng:/etc/searxng
+      - ./docker/searxng-cache:/var/cache/searxng
