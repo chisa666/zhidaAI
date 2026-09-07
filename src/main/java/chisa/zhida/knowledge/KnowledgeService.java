@@ -2,6 +2,7 @@ package chisa.zhida.knowledge;
 
 import chisa.zhida.common.PageResponse;
 import chisa.zhida.common.Response;
+import chisa.zhida.document.DocumentReaderService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.ai.document.Document;
@@ -10,6 +11,7 @@ import org.springframework.ai.reader.markdown.config.MarkdownDocumentReaderConfi
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -30,19 +32,25 @@ public class KnowledgeService {
     private final JdbcTemplate jdbc;
     private final Path root;
     private final ObjectProvider<VectorStore> vectorStores;
+    private final ApplicationEventPublisher eventPublisher;
+    private final DocumentReaderService documentReaderService;
 
     public KnowledgeService(JdbcTemplate jdbc, ObjectProvider<VectorStore> vectorStores,
-                            @Value("${zhida.storage-path:./data}") String storagePath) {
+                            @Value("${zhida.storage-path:./data}") String storagePath,
+                            ApplicationEventPublisher eventPublisher,
+                            DocumentReaderService documentReaderService) {
         this.jdbc = jdbc;
         this.vectorStores = vectorStores;
+        this.eventPublisher = eventPublisher;
+        this.documentReaderService = documentReaderService;
         this.root = Paths.get(storagePath).toAbsolutePath().resolve("knowledge");
         try { Files.createDirectories(root); } catch (IOException ignored) { }
     }
 
     public Response<MdFileView> upload(MultipartFile file, String remark) {
-        if (file == null || file.isEmpty()) return Response.fail("请选择 Markdown 文件");
+        if (file == null || file.isEmpty()) return Response.fail("请选择知识库文件");
         String name = file.getOriginalFilename() == null ? "knowledge.md" : file.getOriginalFilename();
-        if (!name.toLowerCase().endsWith(".md") && !name.toLowerCase().endsWith(".markdown")) return Response.fail("仅支持 Markdown 文件");
+        if (!isSupported(name)) return Response.fail("仅支持 txt、json、md、html、pdf、doc、docx、ppt、pptx 文件");
         try {
             byte[] bytes = file.getBytes();
             String md5 = md5(bytes);
@@ -50,7 +58,7 @@ public class KnowledgeService {
             Files.write(target, bytes);
             LocalDateTime now = LocalDateTime.now();
             long id = insert(md5, name, target.toString(), bytes.length, remark, now);
-            vectorize(id, target, name);
+            eventPublisher.publishEvent(new KnowledgeFileUploadedEvent(id, target.toString(), name));
             return Response.success(find(id));
         } catch (Exception e) { return Response.fail("文件保存失败"); }
     }
@@ -143,18 +151,17 @@ public class KnowledgeService {
         return number.longValue();
     }
 
-    private void vectorize(long id, Path file, String originalName) {
+    public void vectorize(long id, String filePath, String originalName) {
         try {
+            Path file = Paths.get(filePath);
             VectorStore vectorStore = vectorStores.getIfAvailable();
             if (vectorStore == null) throw new IllegalStateException("VectorStore 未初始化");
             jdbc.update("UPDATE t_ai_customer_service_md_storage SET status = 1, update_time = ? WHERE id = ?", LocalDateTime.now(), id);
-            MarkdownDocumentReaderConfig config = MarkdownDocumentReaderConfig.builder()
-                    .withHorizontalRuleCreateDocument(true)
-                    .withIncludeCodeBlock(false)
-                    .withIncludeBlockquote(false)
-                    .withAdditionalMetadata(java.util.Map.of("mdStorageId", id, "fileName", originalName))
-                    .build();
-            List<Document> documents = new MarkdownDocumentReader(new FileSystemResource(file), config).get();
+            List<Document> documents = documentReaderService.read(file);
+            documents.forEach(document -> {
+                document.getMetadata().put("mdStorageId", id);
+                document.getMetadata().put("fileName", originalName);
+            });
             if (!documents.isEmpty()) vectorStore.add(documents);
             jdbc.update("UPDATE t_ai_customer_service_md_storage SET status = 2, update_time = ? WHERE id = ?", LocalDateTime.now(), id);
         } catch (Exception e) {
@@ -162,6 +169,16 @@ public class KnowledgeService {
                     .error("Knowledge vectorization failed for file {} (id={})", originalName, id, e);
             jdbc.update("UPDATE t_ai_customer_service_md_storage SET status = 3, update_time = ? WHERE id = ?", LocalDateTime.now(), id);
         }
+    }
+
+    private boolean isSupported(String name) {
+        String lower = name.toLowerCase();
+        return lower.endsWith(".txt") || lower.endsWith(".json")
+                || lower.endsWith(".md") || lower.endsWith(".markdown")
+                || lower.endsWith(".html") || lower.endsWith(".htm")
+                || lower.endsWith(".pdf") || lower.endsWith(".doc")
+                || lower.endsWith(".docx") || lower.endsWith(".ppt")
+                || lower.endsWith(".pptx");
     }
 
     private MdFileView find(long id) { return listById(id); }

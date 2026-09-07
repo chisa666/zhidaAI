@@ -8,6 +8,17 @@ import java.util.concurrent.Executor;
 
 @Configuration
 public class AsyncConfig {
+    @Bean("eventTaskExecutor")
+    public ThreadPoolTaskExecutor eventTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("zhida-event-");
+        executor.initialize();
+        return executor;
+    }
+
     @Bean("zhidaExecutor")
     public Executor zhidaExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
