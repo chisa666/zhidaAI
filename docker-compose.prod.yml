@@ -4,15 +4,15 @@ services:
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: ollama
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:?OLLAMA_BASE_URL must be set}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:1.7b}
       OLLAMA_EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
       DB_URL: jdbc:postgresql://postgres:5432/zhida
       DB_USERNAME: root
-      DB_PASSWORD: ${DB_PASSWORD:-}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
       CASSANDRA_CONTACT_POINTS: cassandra
       CASSANDRA_LOCAL_DATACENTER: datacenter1
-      SEARXNG_URL: http://searxng:8080/search
+      SEARXNG_URL: ${SEARXNG_URL:?SEARXNG_URL must be set}
       ZHIDA_STORAGE_PATH: /app/data
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -36,7 +36,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: root
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
       POSTGRES_DB: zhida
     volumes:
       - ./docker/postgres:/var/lib/postgresql/data

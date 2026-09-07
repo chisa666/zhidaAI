@@ -16,7 +16,7 @@
 3. 在 IDEA 打开根目录，运行 `chisa.zhida.ZhidaAiApplication`，或执行 `mvn spring-boot:run`。默认 profile 是 `ollama`，模型请求会进入本机 Ollama；切换到阿里百炼配置可使用 `SPRING_PROFILES_ACTIVE=dev`，并提供 `OPENAI_API_KEY`。
 4. 在 `frontend` 执行 `npm install`、`npm run dev`，浏览器访问 `http://localhost:5173`。
 
-PostgreSQL 默认连接为 `jdbc:postgresql://127.0.0.1:5432/zhida`，账号 `root`，密码 ``，也可以通过 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` 等环境变量覆盖。最终工程不使用 H2 或手写 HTTP 调用替代 Spring AI。
+PostgreSQL 使用 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD` 环境变量配置连接，密码不会写入仓库。最终工程不使用 H2 或手写 HTTP 调用替代 Spring AI。
 
 ## Ollama / 外部模型
 
