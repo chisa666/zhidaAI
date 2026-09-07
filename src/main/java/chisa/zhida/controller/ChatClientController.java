@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.context.annotation.Profile;
 import reactor.core.publisher.Flux;
 
-/** ChatClient facade corresponding to the capability's synchronous and streaming examples. */
+/** ChatClient facade corresponding to the application's synchronous and streaming examples. */
 @RestController
 @Profile("ollama")
 @RequestMapping("/api/lab/chat-client")

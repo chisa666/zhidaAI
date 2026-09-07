@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Profile;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Shared ChatClient configured for the local Ollama capability profile. */
+/** Shared ChatClient configured for the local Ollama profile. */
 @Configuration
 @Profile("ollama")
 public class ChatClientConfig {

@@ -55,13 +55,13 @@ public class SupportAgentService {
         long totalMs = elapsedMs(started);
         Metrics metrics = new Metrics(steps.size(), modelCalls, "harness".equals(mode) ? 1 : 0,
                 context.length(), answer.length(), totalMs, !answer.isBlank());
-        return new AgentRun("项目知识库客服", mode, question, answer, metrics, steps);
+        return new AgentRun("知识库客服", mode, question, answer, metrics, steps);
     }
 
     public AgentComparison compare(String question) {
         AgentRun baseline = run(question, "baseline");
         AgentRun harness = run(question, "harness");
-        return new AgentComparison("项目知识库客服", question, baseline, harness,
+        return new AgentComparison("知识库客服", question, baseline, harness,
                 harness.metrics().totalMs() - baseline.metrics().totalMs(),
                 harness.metrics().modelCalls() - baseline.metrics().modelCalls(),
                 harness.metrics().contextChars(),

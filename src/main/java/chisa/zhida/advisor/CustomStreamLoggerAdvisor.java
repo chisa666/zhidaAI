@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-/** Aggregates and logs every streamed answer, matching the capability's custom logger. */
+/** Aggregates and logs every streamed answer, matching the application's custom logger. */
 public final class CustomStreamLoggerAdvisor implements StreamAdvisor {
     private static final Logger log = LoggerFactory.getLogger(CustomStreamLoggerAdvisor.class);
 

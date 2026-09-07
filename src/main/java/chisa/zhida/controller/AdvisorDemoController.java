@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-/** Direct verification endpoint for the capability's custom streaming Advisor chain. */
+/** Direct verification endpoint for the application's custom streaming Advisor chain. */
 @RestController
 @Profile("ollama")
 @RequestMapping("/api/lab/advisor")

@@ -2,7 +2,7 @@ package chisa.zhida.tools;
 
 import org.springframework.ai.tool.annotation.Tool;
 
-/** Deterministic weather tool used by the Tool Calling capability. */
+/** Deterministic weather tool used by the Tool Calling integration. */
 public class WeatherTools {
     @Tool(description = "获取当日的天气情况，时间参数需为 ISO-8601 格式")
     public String getWeather(String time) {

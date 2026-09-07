@@ -19,7 +19,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 
-/** Unified document-reading examples from capability sections 8.4 and 8.5. */
+/** Unified document-reading examples from document-format integrations. */
 @Service
 public class DocumentReaderService {
     private final TokenTextSplitter splitter = TokenTextSplitter.builder()

@@ -18,7 +18,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.Map;
 
-/** Explicit Cassandra ChatMemory demo matching the capability's conversation-id flow. */
+/** Explicit Cassandra ChatMemory demo matching the application's conversation-id flow. */
 @RestController
 @RequestMapping("/api/lab/chat-memory")
 public class ChatMemoryController {

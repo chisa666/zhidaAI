@@ -9,7 +9,7 @@
       <nav class="mt-5 space-y-1">
         <button @click="$emit('home')" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-white hover:text-slate-900"><MessageSquare :size="16" />聊天</button>
         <button @click="$emit('customer-service')" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-white hover:text-slate-900"><BookOpen :size="16" />智能客服知识库</button>
-        <button @click="$emit('lab')" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-white hover:text-slate-900"><FlaskConical :size="16" />项目实验室</button>
+        <button @click="$emit('lab')" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-white hover:text-slate-900"><FlaskConical :size="16" />能力实验室</button>
       </nav>
     </div>
     <div class="mt-6 flex min-h-0 min-w-72 flex-1 flex-col px-4">

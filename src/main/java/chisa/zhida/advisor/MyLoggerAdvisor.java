@@ -7,7 +7,7 @@ import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
 import org.springframework.ai.chat.client.advisor.api.CallAdvisorChain;
 
-/** Capability advisor that records the request and response around synchronous calls. */
+/** Application advisor that records the request and response around synchronous calls. */
 public final class MyLoggerAdvisor implements CallAdvisor {
     private static final Logger log = LoggerFactory.getLogger(MyLoggerAdvisor.class);
 

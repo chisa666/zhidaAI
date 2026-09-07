@@ -1,13 +1,13 @@
 # 智答ai
 
-基于项目目录 `springai/项目顺序.txt` 实现的 Spring AI 全栈项目，作者署名 `chisa`。项目包含本地 Ollama 对话、SSE 流式输出、Prompt/Advisor 相关接口、历史对话、Markdown 知识库客服、联网搜索和大文件分片上传。
+智答ai是由 `chisa` 独立设计与实现的 Spring AI 全栈应用。项目包含本地 Ollama 对话、SSE 流式输出、Prompt/Advisor 相关接口、历史对话、Markdown 知识库客服、联网搜索和大文件分片上传。
 
 ## 目录
 
 - `src/main/java/chisa/zhida`：Spring Boot 后端，IDEA 可直接以 Maven 项目打开。
 - `frontend`：Vue 3 + Vite + Tailwind CSS 4 + Ant Design Vue + Pinia 前端。
 - `docker-compose.yml`：PostgreSQL/PGVector、Redis Stack、RabbitMQ、SearXNG 开发服务。
-- `springai`：原始项目 Markdown 和配图，顺序以 `springai/项目顺序.txt` 为准。
+- `docker`：本地依赖服务的持久化目录和 SearXNG 配置。
 
 ## 运行
 
@@ -57,4 +57,4 @@ MCP Client 默认关闭，避免没有高德 Key 时启动外部 npx 进程。�
 - `POST /api/customer-service/md/upload`、`GET /api/customer-service/md/list`、`DELETE /api/customer-service/md/{id}`
 - `POST /api/file/check`、`POST /api/file/chunk`、`POST /api/file/merge`
 
-项目中提到的 Redis/MQ 需要 Docker Desktop 运行；如果 Docker CLI 报无法连接 daemon，请打开 Docker Desktop 后再执行 `docker compose up -d`。
+项目使用的 Redis/MQ 需要 Docker Desktop 运行；如果 Docker CLI 报无法连接 daemon，请打开 Docker Desktop 后再执行 `docker compose up -d`。

@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** Spring AI capability memory with a Cassandra-backed repository when Cassandra is available. */
+/** Spring AI chat memory with a Cassandra-backed repository when Cassandra is available. */
 @Configuration
 public class ChatMemoryConfig {
 

@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
-/** SearXNG 搜索服务，使用项目指定的 OkHttp3 客户端。 */
+/** SearXNG 搜索服务，使用项目采用的 OkHttp3 客户端。 */
 @Service
 public class SearchService {
     private final OkHttpClient client;

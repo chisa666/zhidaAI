@@ -4,7 +4,7 @@ import org.springframework.ai.tool.annotation.Tool;
 
 import java.util.Map;
 
-/** Local MCP server tool from the capability, kept deterministic for offline development. */
+/** Local MCP server tool used by the application, kept deterministic for offline development. */
 public class QqTool {
     @Tool(description = "根据 QQ 号获取 QQ 信息")
     public Map<String, Object> getQqInfo(String qq) {

@@ -6,7 +6,7 @@ import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** Registers capability tools for both Spring AI Tool Calling and the MCP server starter. */
+/** Registers application tools for both Spring AI Tool Calling and the MCP server starter. */
 @Configuration
 public class ToolConfig {
     @Bean
