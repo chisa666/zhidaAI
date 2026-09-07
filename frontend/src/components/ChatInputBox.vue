@@ -7,9 +7,11 @@
   </div>
 </template>
 <script setup>
-import { ref, nextTick } from 'vue'; import { Search, Send } from 'lucide-vue-next'
+import { ref, nextTick, computed } from 'vue'; import { Search, Send } from 'lucide-vue-next'; import { useChatStore } from '@/stores/chatStore'
 const props = defineProps({ modelValue: { type: String, default: '' }, placeholder: { type: String, default: '给智答ai发送消息' }, busy: Boolean }); const emit = defineEmits(['update:modelValue','send'])
-const input = ref(null); const draft = ref(props.modelValue); const model = ref('qwen3:1.7b'); const network = ref(false)
+const store = useChatStore(); const input = ref(null); const draft = ref(props.modelValue)
+const model = computed({ get: () => store.selectedModel.name, set: value => store.setModel({ name: value, label: 'Qwen3 1.7B local model' }) })
+const network = computed({ get: () => store.isNetworkSearchSelected, set: value => store.setNetworkSearch(value) })
 function resize() { if (!input.value) return; input.value.style.height = 'auto'; input.value.style.height = `${Math.min(input.value.scrollHeight, 180)}px`; emit('update:modelValue', draft.value) }
 function submit() { if (!draft.value.trim() || props.busy) return; emit('send', { message: draft.value.trim(), selectedModel: { name: model.value }, isNetworkSearch: network.value }); draft.value = ''; nextTick(resize) }
 </script>

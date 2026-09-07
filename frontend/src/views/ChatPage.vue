@@ -18,7 +18,9 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { api } from '@/services/api'
 const route = useRoute(); const router = useRouter(); const chatId = route.params.chatId; const messages = ref([]); const busy = ref(false); const scroll = ref(null); const selectedModel = ref('Qwen3 本地')
 const title = computed(() => messages.value.find(m => m.role === 'user')?.content?.slice(0, 28) || '新对话')
-async function loadMessages() { try { const result = await api.messages(chatId); messages.value = (result.data || []).map(m => ({ role: m.role, content: m.content || '', reasoning: m.reasoning || '' })) } catch {} }
+const messagePage = ref(1); const messagesHasMore = ref(true); const loadingMore = ref(false)
+async function loadMessages(page = 1, append = false) { if (loadingMore.value || (append && !messagesHasMore.value)) return; if (append) loadingMore.value = true; try { const result = await api.messages(chatId, page, 50); const rows = (result.data || []).map(m => ({ role: m.role, content: m.content || '', reasoning: m.reasoning || '' })).reverse(); messages.value = append ? [...rows, ...messages.value] : rows; messagePage.value = page; messagesHasMore.value = page < (result.pages || 0) } finally { loadingMore.value = false } }
+function handleScroll(event) { const el = event.target; if (el.scrollTop <= 80) loadMessages(messagePage.value + 1, true) }
 function bottom() { nextTick(() => { if (scroll.value) scroll.value.scrollTop = scroll.value.scrollHeight }) }
 async function sendMessage(payload) {
   if (!payload?.message || busy.value) return
@@ -31,5 +33,5 @@ async function sendMessage(payload) {
     })
   } catch (error) { messages.value[messages.value.length - 1].content = `请求失败：${error.message}` } finally { busy.value = false; bottom() }
 }
-onMounted(async () => { await loadMessages(); const first = route.query.first; if (first && !messages.value.length) await sendMessage({ message: first, selectedModel: { name: 'qwen3:1.7b' }, isNetworkSearch: false }) })
+onMounted(async () => { await loadMessages(); if (scroll.value) scroll.value.addEventListener('scroll', handleScroll); const first = route.query.first; if (first && !messages.value.length) await sendMessage({ message: first, selectedModel: { name: 'qwen3:1.7b' }, isNetworkSearch: false }) })
 </script>

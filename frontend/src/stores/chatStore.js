@@ -12,5 +12,9 @@ export const useChatStore = defineStore('chat', {
     setModel(model) { this.selectedModel = model },
     setNetworkSearch(value) { this.isNetworkSearchSelected = value },
     resetChats() { this.chats = []; this.chatsPage = 1; this.chatsHasMore = true }
+  },
+  persist: {
+    key: 'zhida-chat-settings',
+    paths: ['selectedModel', 'isNetworkSearchSelected']
   }
 })
