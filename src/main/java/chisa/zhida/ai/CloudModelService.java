@@ -8,6 +8,7 @@ import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.deepseek.DeepSeekChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -40,15 +41,22 @@ public class CloudModelService {
         }
         String selectedModel = model == null || model.isBlank() ?
                 ("deepseek".equalsIgnoreCase(provider) ? deepSeekModel : openAiModel) : model;
-        Prompt prompt = new Prompt(new UserMessage(message), ChatOptions.builder()
-                .model(selectedModel).temperature(temperature).build());
-        return chatModel.stream(prompt).<AiResponse>handle((response, sink) -> {
-            if (response == null || response.getResult() == null) return;
+        ChatOptions options = switch (provider == null ? "" : provider.toLowerCase()) {
+            case "openai", "bailian", "qwen" -> OpenAiChatOptions.builder()
+                    .model(selectedModel).temperature(temperature).build();
+            default -> ChatOptions.builder().model(selectedModel).temperature(temperature).build();
+        };
+        Prompt prompt = new Prompt(new UserMessage(message), options);
+        return chatModel.stream(prompt).concatMap(response -> {
+            if (response == null || response.getResult() == null || response.getResult().getOutput() == null) {
+                return Flux.empty();
+            }
             AssistantMessage output = response.getResult().getOutput();
-            if (output == null) return;
+            java.util.ArrayList<AiResponse> events = new java.util.ArrayList<>();
             Object reasoning = output.getMetadata().getOrDefault("reasoningContent", output.getMetadata().get("thinking"));
-            if (reasoning != null && !String.valueOf(reasoning).isBlank()) sink.next(AiResponse.reasoning(String.valueOf(reasoning)));
-            if (output.getText() != null && !output.getText().isBlank()) sink.next(AiResponse.text(output.getText()));
+            if (reasoning != null && !String.valueOf(reasoning).isBlank()) events.add(AiResponse.reasoning(String.valueOf(reasoning)));
+            if (output.getText() != null && !output.getText().isBlank()) events.add(AiResponse.text(output.getText()));
+            return Flux.fromIterable(events);
         }).concatWith(Flux.just(AiResponse.end()));
     }
 
