@@ -6,8 +6,11 @@ export const api = {
     const headers = { ...(isForm ? {} : { 'Content-Type': 'application/json' }), ...(options.headers || {}) }
     if (isForm) delete headers['Content-Type']
     const response = await fetch(path, { headers, ...options })
-    const data = await response.json()
-    if (!response.ok || data.success === false) throw new Error(data.message || '请求失败')
+    const contentType = response.headers.get('content-type') || ''
+    const data = contentType.includes('application/json') ? await response.json() : await response.text()
+    if (!response.ok || (data && typeof data === 'object' && data.success === false)) {
+      throw new Error(data?.message || data || '请求失败')
+    }
     return data
   },
   newChat(message) { return this.request('/api/chat/new', { method: 'POST', body: JSON.stringify({ message }) }) },

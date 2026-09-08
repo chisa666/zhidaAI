@@ -21,7 +21,7 @@ import ChatInputBox from '@/components/ChatInputBox.vue'
 import { api } from '@/services/api'
 const router = useRouter(); const busy = ref(false); const chatInput = ref(null)
 const suggestions = ['帮我制定一个学习计划', 'Spring AI 可以做什么？', '解释一下 RAG 增强检索']
-async function sendMessage(payload) { if (!payload.message || busy.value) return; busy.value = true; try { const res = await api.newChat(payload.message); router.push({ path: `/chat/${res.data.uuid}`, query: { first: payload.message } }) } catch (error) { window.alert(error.message) } finally { busy.value = false } }
+async function sendMessage(payload) { if (!payload.message || busy.value) return; busy.value = true; try { const res = await api.newChat(payload.message); router.push({ path: `/chat/${res.data.uuid}`, query: { first: payload.message, model: payload.selectedModel?.name || 'qwen3:1.7b', network: payload.isNetworkSearch ? '1' : '0' } }) } catch (error) { window.alert(error.message) } finally { busy.value = false } }
 function quickAsk(message) { sendMessage({ message }) }
 function focusInput() { chatInput.value?.$el?.querySelector('textarea')?.focus() }
 </script>

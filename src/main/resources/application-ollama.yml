@@ -54,7 +54,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://127.0.0.1:5432/zhida}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    password: ${DB_PASSWORD:${zhida.local.db-password:}}
     driver-class-name: org.postgresql.Driver
   sql:
     init:
@@ -83,5 +83,10 @@ zhida:
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434}
     model: ${OLLAMA_MODEL:qwen3:1.7b}
+  aliyun:
+    enabled: ${ZHIDA_ALIYUN_ENABLED:${zhida.local.aliyun-enabled:false}}
+    base-url: ${OPENAI_BASE_URL:${zhida.local.aliyun-base-url:}}
+    api-key: ${OPENAI_API_KEY:${zhida.local.aliyun-api-key:}}
+    model: ${OPENAI_MODEL:${zhida.local.aliyun-model:qwen3.8-flash}}
   searxng:
     base-url: ${SEARXNG_BASE_URL:http://127.0.0.1:8888}

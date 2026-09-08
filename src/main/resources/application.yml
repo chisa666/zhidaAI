@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: zhida-ai
+  config:
+    import: 'optional:file:${ZHIDA_LOCAL_CONFIG:D:/Environment/zhida/application-local.yml}'
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:ollama}
   servlet:
