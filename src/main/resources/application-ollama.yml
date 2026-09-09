@@ -31,10 +31,10 @@ spring:
             initialize-schema: ${CASSANDRA_CHAT_MEMORY_INITIALIZE_SCHEMA:true}
     mcp:
       client:
-        enabled: ${ZHIDA_MCP_CLIENT_ENABLED:false}
+        enabled: ${ZHIDA_MCP_CLIENT_ENABLED:${zhida.local.mcp-enabled:false}}
         request-timeout: 100s
         stdio:
-          servers-configuration: classpath:/mcp-servers-config.json
+          servers-configuration: ${ZHIDA_MCP_SERVERS_CONFIG:${zhida.local.mcp-servers-config:classpath:/mcp-servers-config.json}}
         toolcallback:
           enabled: true
       server:
@@ -88,5 +88,10 @@ zhida:
     base-url: ${OPENAI_BASE_URL:${zhida.local.aliyun-base-url:}}
     api-key: ${OPENAI_API_KEY:${zhida.local.aliyun-api-key:}}
     model: ${OPENAI_MODEL:${zhida.local.aliyun-model:qwen3.8-flash}}
+  zhipu:
+    enabled: ${ZHIDA_ZHIPU_ENABLED:${zhida.local.zhipu-enabled:false}}
+    base-url: ${ZHIPU_BASE_URL:${zhida.local.zhipu-base-url:https://open.bigmodel.cn/api/paas/v4}}
+    api-key: ${ZHIPU_API_KEY:${zhida.local.zhipu-api-key:}}
+    model: ${ZHIPU_MODEL:${zhida.local.zhipu-model:glm-4-flash}}
   searxng:
     base-url: ${SEARXNG_BASE_URL:http://127.0.0.1:8888}

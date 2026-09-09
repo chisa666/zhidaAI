@@ -9,6 +9,7 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.http.okhttp.SpringAiOpenAiHttpClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,9 +35,9 @@ public class AliyunChatConfig {
         return new OpenAIClientAsyncImpl(clientOptions(baseUrl, apiKey));
     }
 
-    @Bean
-    public OpenAiChatModel aliyunChatModel(OpenAIClient aliyunOpenAiClient,
-                                           OpenAIClientAsync aliyunOpenAiClientAsync,
+    @Bean(name = "aliyunChatModel")
+    public OpenAiChatModel aliyunChatModel(@Qualifier("aliyunOpenAiClient") OpenAIClient aliyunOpenAiClient,
+                                           @Qualifier("aliyunOpenAiClientAsync") OpenAIClientAsync aliyunOpenAiClientAsync,
                                            @Value("${zhida.aliyun.model:qwen3.8-flash}") String model) {
         return OpenAiChatModel.builder()
                 .openAiClient(aliyunOpenAiClient)

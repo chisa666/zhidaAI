@@ -23,17 +23,20 @@ import java.util.Map;
 public class McpController {
     private final ChatClient chatClient;
     private final List<ToolCallbackProvider> providers;
+    private final boolean mcpEnabled;
 
-    public McpController(ChatClient chatClient, ObjectProvider<ToolCallbackProvider> providers) {
+    public McpController(ChatClient chatClient, ObjectProvider<ToolCallbackProvider> providers,
+                         @org.springframework.beans.factory.annotation.Value("${spring.ai.mcp.client.enabled:false}") boolean mcpEnabled) {
         this.chatClient = chatClient;
         this.providers = providers.orderedStream().toList();
+        this.mcpEnabled = mcpEnabled;
     }
 
     @GetMapping("/status")
     public Map<String, Object> status() {
         int tools = providers.stream().mapToInt(provider -> provider.getToolCallbacks().length).sum();
         return Map.of("success", true, "providers", providers.size(), "tools", tools,
-                "amapEnabled", Boolean.parseBoolean(System.getenv().getOrDefault("ZHIDA_MCP_CLIENT_ENABLED", "false")));
+                "amapEnabled", mcpEnabled);
     }
 
     @GetMapping(value = "/generateStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

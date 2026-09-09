@@ -24,14 +24,14 @@ import java.util.UUID;
 public class ChatService {
     private final ChatRepository repository;
     private final OllamaChatModel ollamaModel;
-    private final ObjectProvider<OpenAiChatModel> openAiModels;
+    private final java.util.Map<String, OpenAiChatModel> openAiModels;
     private final NetworkSearchService networkSearchService;
     private final TransactionTemplate transactionTemplate;
     private final String defaultModel;
 
     public ChatService(ChatRepository repository,
                        OllamaChatModel ollamaModel,
-                       ObjectProvider<OpenAiChatModel> openAiModels,
+                       java.util.Map<String, OpenAiChatModel> openAiModels,
                        NetworkSearchService networkSearchService,
                        TransactionTemplate transactionTemplate,
                        @Value("${zhida.ollama.model:qwen3:1.7b}") String defaultModel) {
@@ -83,7 +83,7 @@ public class ChatService {
         ChatClient chatClient;
         ChatClient.ChatClientRequestSpec spec;
         if (cloud) {
-            OpenAiChatModel model = openAiModels.getIfAvailable();
+            OpenAiChatModel model = selectCloudModel(selectedModel);
             if (model == null) {
                 return Flux.just(AiResponse.text("阿里云模型未启用。请在 IDEA 环境变量中设置 ZHIDA_ALIYUN_ENABLED=true、OPENAI_API_KEY 和 OPENAI_BASE_URL。"), AiResponse.end());
             }
@@ -140,7 +140,14 @@ public class ChatService {
         String value = model == null ? "" : model.toLowerCase();
         return value.startsWith("qwen3.8") || value.startsWith("qwen3.5")
                 || value.startsWith("qwen-image") || value.startsWith("wan")
-                || value.startsWith("cosyvoice");
+                || value.startsWith("cosyvoice") || value.startsWith("glm-")
+                || value.startsWith("glm_");
+    }
+
+    private OpenAiChatModel selectCloudModel(String model) {
+        String value = model == null ? "" : model.toLowerCase();
+        if (value.startsWith("glm-") || value.startsWith("glm_")) return openAiModels.get("zhipuChatModel");
+        return openAiModels.get("aliyunChatModel");
     }
 
     private String truncate(String text, int max) {

@@ -42,6 +42,9 @@ export const api = {
   structuredCities(country = '中国') { return this.request(`/api/lab/structured/city-list?country=${encodeURIComponent(country)}`) },
   agentRun(question, strategy = 'harness') { return this.request(`/api/agent/support-agent/run?question=${encodeURIComponent(question)}&strategy=${strategy}`) },
   agentCompare(question) { return this.request(`/api/agent/support-agent/compare?question=${encodeURIComponent(question)}`) },
+  generateImage(prompt) { return this.request(`/v10/ai/text2img?prompt=${encodeURIComponent(prompt)}`) },
+  generateAudio(prompt) { return this.request(`/v11/ai/text2audio?prompt=${encodeURIComponent(prompt)}`) },
+  generateVideo(prompt, imagePath) { const query = `prompt=${encodeURIComponent(prompt)}${imagePath ? `&imagePath=${encodeURIComponent(imagePath)}` : ""}`; return this.request(`/v12/ai/text2video?${query}`) },
   async streamAdvisor(message, handlers = {}) {
     await fetchEventSource(`/api/lab/advisor/network/generateStream?message=${encodeURIComponent(message)}`, {
       headers: { Accept: 'text/event-stream' },

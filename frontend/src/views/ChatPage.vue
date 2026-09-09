@@ -24,7 +24,7 @@ function handleScroll(event) { const el = event.target; if (el.scrollTop <= 80) 
 function bottom() { nextTick(() => { if (scroll.value) scroll.value.scrollTop = scroll.value.scrollHeight }) }
 async function sendMessage(payload) {
   if (!payload?.message || busy.value) return
-  selectedModel.value = payload.selectedModel?.name === 'qwen3.8-flash' ? 'Qwen3.8 Flash 云端' : payload.selectedModel?.name === 'qwen3.8-max' ? 'Qwen3.8 Max 云端' : 'Qwen3 1.7B 本地'; const user = payload.message
+  selectedModel.value = payload.selectedModel?.name === 'qwen3.8-flash' ? 'Qwen3.8 Flash 云端' : payload.selectedModel?.name === 'qwen3.8-max' ? 'Qwen3.8 Max 云端' : payload.selectedModel?.name === 'glm-4-flash' ? '智谱 GLM-4 Flash 云端' : 'Qwen3 1.7B 本地'; const user = payload.message
   messages.value.push({ role: 'user', content: user }); messages.value.push({ role: 'assistant', content: '', reasoning: '' }); busy.value = true; bottom()
   try {
     await api.streamChat({ message: user, chatId, modelName: payload.selectedModel?.name, networkSearch: payload.isNetworkSearch, temperature: 0.7 }, {

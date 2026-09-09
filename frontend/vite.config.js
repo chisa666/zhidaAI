@@ -6,5 +6,5 @@ export default defineConfig({
   plugins: [vue(), tailwindcss()],
   cacheDir: 'D:/Environment/zhida-vite-cache',
   resolve: { alias: { '@': '/src' } },
-  server: { port: 5173, proxy: { '/api': 'http://localhost:8080' } }
+  server: { port: 5173, proxy: { '/api': 'http://localhost:8080', '/v9': 'http://localhost:8080', '/v10': 'http://localhost:8080', '/v11': 'http://localhost:8080', '/v12': 'http://localhost:8080' } }
 })

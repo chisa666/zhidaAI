@@ -28,6 +28,11 @@
           <div v-if="agentResult" class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-400"><span>检索 {{ agentResult.metrics?.retrievalCalls ?? 0 }} 次</span><span>上下文 {{ agentResult.metrics?.contextChars ?? 0 }} 字符</span><span>耗时 {{ agentResult.metrics?.totalMs ?? 0 }} ms</span><button class="ml-auto text-rose-500 hover:text-rose-700" @click="compareAgent">查看基线对比</button></div>
           <div v-if="comparison" class="mt-3 rounded-lg border border-dashed border-slate-200 p-3 text-xs text-slate-500">Harness 比基线 {{ comparison.latencyDeltaMs <= 0 ? '快' : '慢' }} {{ Math.abs(comparison.latencyDeltaMs) }} ms，模型调用差值 {{ comparison.modelCallDelta }} 次。</div>
         </section>
+        <section class="tool-panel lg:col-span-2">
+          <div class="tool-heading"><Image :size="17" class="text-cyan-500" /><div><h2>多媒体创作</h2><p>使用阿里云模型生成图片、音频或视频，结果会保存到本机数据目录</p></div></div>
+          <div class="mt-4 flex flex-col gap-2 sm:flex-row"><input v-model="mediaPrompt" class="tool-input" placeholder="例如：一份清爽的健康饮食早餐插画" @keydown.enter="runMedia('image')" /><button class="tool-button bg-cyan-600" :disabled="mediaBusy" @click="runMedia('image')"><LoaderCircle v-if="mediaBusy === 'image'" class="animate-spin" :size="15" /><Image v-else :size="15" />生成图片</button><button class="tool-button bg-violet-600" :disabled="mediaBusy" @click="runMedia('audio')"><LoaderCircle v-if="mediaBusy === 'audio'" class="animate-spin" :size="15" /><Volume2 v-else :size="15" />生成音频</button><button class="tool-button bg-rose-600" :disabled="mediaBusy || !mediaImagePath" @click="runMedia('video')"><LoaderCircle v-if="mediaBusy === 'video'" class="animate-spin" :size="15" /><Video v-else :size="15" />生成视频</button></div>
+          <div v-if="mediaResult" class="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs text-slate-600"><pre class="whitespace-pre-wrap">{{ JSON.stringify(mediaResult, null, 2) }}</pre><img v-if="mediaResult.url && mediaResult.url.endsWith('.png')" :src="mediaResult.url" class="mt-3 max-h-72 max-w-full rounded-lg" alt="生成的图片" /><audio v-if="mediaResult.url && mediaResult.url.endsWith('.mp3')" :src="mediaResult.url" controls class="mt-3 w-full" /><video v-if="mediaResult.url && mediaResult.url.endsWith('.mp4')" :src="mediaResult.url" controls class="mt-3 max-h-72 max-w-full" /></div><div v-else class="tool-output text-slate-400">选择一种媒体类型并输入描述</div>
+        </section>
       </main>
     </div>
   </Layout>
@@ -35,7 +40,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { BookOpen, Braces, LoaderCircle, MessageCircle, Play, Radio, Search, TextCursorInput, WandSparkles } from 'lucide-vue-next'
+import { BookOpen, Braces, Image, LoaderCircle, MessageCircle, Play, Radio, Search, TextCursorInput, Video, Volume2, WandSparkles } from 'lucide-vue-next'
 import Layout from '@/layouts/Layout.vue'
 import { api } from '@/services/api'
 const router = useRouter()
@@ -50,12 +55,18 @@ const advisorResult = ref('')
 const agentQuestion = ref('如何接入 Ollama？')
 const agentResult = ref(null)
 const comparison = ref(null)
+const mediaPrompt = ref('一份清爽的健康饮食早餐插画')
+const mediaBusy = ref('')
+const mediaResult = ref(null)
+const mediaImagePath = ref('')
 const structuredPlaceholder = computed(() => ({ actor: '例如：周星驰', language: '例如：Java', cities: '例如：中国' }[structuredType.value]))
 async function runPrompt() { if (!topic.value.trim()) return; busy.value = 'prompt'; promptResult.value = ''; try { promptResult.value = await api.promptTemplate(topic.value.trim()) } catch (error) { promptResult.value = `请求失败：${error.message}` } finally { busy.value = '' } }
 async function runStructured() { if (!structuredInput.value.trim()) return; busy.value = 'structured'; structuredResult.value = ''; try { const value = structuredType.value === 'actor' ? await api.structuredActor(structuredInput.value.trim()) : structuredType.value === 'language' ? await api.structuredLanguage(structuredInput.value.trim()) : await api.structuredCities(structuredInput.value.trim()); structuredResult.value = JSON.stringify(value, null, 2) } catch (error) { structuredResult.value = `请求失败：${error.message}` } finally { busy.value = '' } }
 async function runAdvisor() { if (!advisorQuestion.value.trim()) return; busy.value = 'advisor'; advisorResult.value = ''; try { await api.streamAdvisor(advisorQuestion.value.trim(), { onChunk(chunk) { if (chunk.v) advisorResult.value += chunk.v; if (chunk.reasoning) advisorResult.value += chunk.reasoning } }) } catch (error) { advisorResult.value = `请求失败：${error.message}` } finally { busy.value = '' } }
 async function runAgent() { if (!agentQuestion.value.trim()) return; busy.value = 'agent'; comparison.value = null; try { agentResult.value = await api.agentRun(agentQuestion.value.trim(), 'harness') } catch (error) { agentResult.value = { answer: `请求失败：${error.message}` } } finally { busy.value = '' } }
 async function compareAgent() { if (!agentQuestion.value.trim() || busy.value) return; busy.value = 'agent'; try { comparison.value = await api.agentCompare(agentQuestion.value.trim()) } catch (error) { comparison.value = null; agentResult.value = { ...agentResult.value, answer: `对比失败：${error.message}` } } finally { busy.value = '' } }
+async function runMedia(type) { if (!mediaPrompt.value.trim() || mediaBusy.value) return; mediaBusy.value = type; mediaResult.value = null; try { mediaResult.value = type === 'image' ? await api.generateImage(mediaPrompt.value.trim()) : type === 'audio' ? await api.generateAudio(mediaPrompt.value.trim()) : await api.generateVideo(mediaPrompt.value.trim(), mediaImagePath.value)
+    if (type === 'image' && mediaResult.value?.path) mediaImagePath.value = mediaResult.value.path } catch (error) { mediaResult.value = { success: false, message: error.message } } finally { mediaBusy.value = '' } }
 </script>
 <style scoped>
 .tool-panel { border: 1px solid rgb(226 232 240); border-radius: 0.75rem; background: white; padding: 1.25rem; box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
