@@ -1,11 +1,14 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+const apiUrl = (path) => API_BASE_URL + path
+
 export const api = {
   async request(path, options = {}) {
     const isForm = options.body instanceof FormData
     const headers = { ...(isForm ? {} : { 'Content-Type': 'application/json' }), ...(options.headers || {}) }
     if (isForm) delete headers['Content-Type']
-    const response = await fetch(path, { headers, ...options })
+    const response = await fetch(apiUrl(path), { headers, ...options })
     const contentType = response.headers.get('content-type') || ''
     const data = contentType.includes('application/json') ? await response.json() : await response.text()
     if (!response.ok || (data && typeof data === 'object' && data.success === false)) {
@@ -46,7 +49,7 @@ export const api = {
   generateAudio(prompt) { return this.request(`/v11/ai/text2audio?prompt=${encodeURIComponent(prompt)}`) },
   generateVideo(prompt, imagePath) { const query = `prompt=${encodeURIComponent(prompt)}${imagePath ? `&imagePath=${encodeURIComponent(imagePath)}` : ""}`; return this.request(`/v12/ai/text2video?${query}`) },
   async streamAdvisor(message, handlers = {}) {
-    await fetchEventSource(`/api/lab/advisor/network/generateStream?message=${encodeURIComponent(message)}`, {
+    await fetchEventSource(apiUrl(`/api/lab/advisor/network/generateStream?message=${encodeURIComponent(message)}`), {
       headers: { Accept: 'text/event-stream' },
       onmessage(event) { if (!event.data) return; try { handlers.onChunk?.(JSON.parse(event.data)) } catch {} },
       onclose() { handlers.onClose?.() }, onerror(error) { handlers.onError?.(error); throw error }
@@ -54,7 +57,7 @@ export const api = {
   },
   async streamChat(payload, handlers = {}) {
     const controller = new AbortController()
-    await fetchEventSource('/api/chat/completion', {
+    await fetchEventSource(apiUrl('/api/chat/completion'), {
       method: 'POST', signal: controller.signal,
       headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
       body: JSON.stringify(payload),
@@ -68,7 +71,7 @@ export const api = {
     return controller
   },
   async streamCustomerChat(payload, handlers = {}) {
-    await fetchEventSource('/api/customer-service/chat/completion', {
+    await fetchEventSource(apiUrl('/api/customer-service/chat/completion'), {
       method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' }, body: JSON.stringify(payload),
       onmessage(event) { if (!event.data) return; try { handlers.onChunk?.(JSON.parse(event.data)) } catch {} },
       onclose() { handlers.onClose?.() }, onerror(error) { handlers.onError?.(error); throw error }
